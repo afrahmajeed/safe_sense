@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeSense - Live SOS Emergency System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
+        
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .heading { font-family: 'Space Grotesk', sans-serif; }
+        
+        .phone {
+            width: 340px;
+            height: 620px;
+            background: #0f172a;
+            border: 14px solid #1e2937;
+            border-radius: 52px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .alert-screen {
+            animation: pulse-alert 1.2s infinite;
+        }
+        
+        @keyframes pulse-alert {
+            0%, 100% { background-color: #b91c1c; }
+            50% { background-color: #991b1b; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen">
+
+    <div class="max-w-6xl mx-auto p-8">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 bg-red-600 rounded-2xl flex items-center justify-center text-3xl">🛡️</div>
+                <h1 class="heading text-4xl tracking-tighter">SafeSense</h1>
+            </div>
+            <div class="bg-red-600/10 text-red-400 px-5 py-2 rounded-3xl text-sm font-medium flex items-center gap-2">
+                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                LIVE SOS DEMO — Working Model
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            
+            <!-- PHONE SIMULATOR -->
+            <div class="lg:col-span-5 flex justify-center">
+                <div class="phone">
+                    <div id="screen" class="h-full bg-slate-900 flex flex-col">
+                        
+                        <!-- Normal Screen -->
+                        <div id="normal-screen" class="flex-1 flex flex-col p-6">
+                            <div class="flex justify-between items-center mb-8">
+                                <div>
+                                    <div class="text-xs text-slate-400">SafeSense</div>
+                                    <div class="text-emerald-400 font-semibold">Monitoring Active</div>
+                                </div>
+                                <div class="text-right text-xs">
+                                    <div>18:59</div>
+                                    <div class="text-emerald-400">● LIVE</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-1 flex flex-col items-center justify-center text-center">
+                                <div class="text-7xl mb-6">🛡️</div>
+                                <div class="text-2xl font-semibold mb-2">Everything looks normal</div>
+                                <div class="text-slate-400">Fall • Crash • Distress detection ON</div>
+                            </div>
+                            
+                            <button onclick="simulateFall()" 
+                                    class="bg-slate-800 hover:bg-slate-700 transition-all py-4 rounded-3xl font-medium text-lg">
+                                Simulate Fall / Accident
+                            </button>
+                        </div>
+                        
+                        <!-- EMERGENCY ALERT SCREEN -->
+                        <div id="alert-screen" class="hidden flex-1 alert-screen flex flex-col p-6 text-white">
+                            <div class="text-center pt-8">
+                                <div class="text-8xl mb-4 animate-bounce">🚨</div>
+                                <h2 class="heading text-4xl font-bold mb-1">EMERGENCY DETECTED</h2>
+                                <p id="alert-type" class="text-xl opacity-90">Sudden Fall Detected</p>
+                            </div>
+                            
+                            <div class="flex-1 flex flex-col justify-center items-center">
+                                <div id="countdown" class="text-8xl font-mono font-bold mb-2">10</div>
+                                <div class="text-sm tracking-widest opacity-75">SECONDS UNTIL SOS IS SENT</div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <button onclick="cancelAlert()" 
+                                        class="w-full bg-white text-red-600 py-6 rounded-3xl text-2xl font-semibold hover:scale-105 transition-all">
+                                    I'M OK — CANCEL
+                                </button>
+                                
+                                <button onclick="sendSOSNow()" 
+                                        class="w-full bg-transparent border-2 border-white py-4 rounded-3xl text-sm font-medium">
+                                    SEND HELP IMMEDIATELY
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTROL + LOG PANEL -->
+            <div class="lg:col-span-7 space-y-8">
+                
+                <div class="bg-slate-900 rounded-3xl p-8">
+                    <h2 class="text-2xl font-semibold mb-6">Live Risk Monitor</h2>
+                    
+                    <div class="grid grid-cols-3 gap-4 mb-8">
+                        <div class="bg-slate-800 rounded-2xl p-5">
+                            <div class="text-xs text-slate-400">Accelerometer (G)</div>
+                            <div id="accel-value" class="text-4xl font-mono font-bold text-orange-400">9.81</div>
+                        </div>
+                        <div class="bg-slate-800 rounded-2xl p-5">
+                            <div class="text-xs text-slate-400">Gyroscope</div>
+                            <div id="gyro-value" class="text-4xl font-mono font-bold text-blue-400">0.00</div>
+                        </div>
+                        <div class="bg-slate-800 rounded-2xl p-5">
+                            <div class="text-xs text-slate-400">Risk Score</div>
+                            <div id="risk-score" class="text-4xl font-mono font-bold text-emerald-400">12</div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="startContinuousMonitoring()" 
+                            class="w-full bg-emerald-600 hover:bg-emerald-500 py-5 rounded-3xl font-semibold text-lg transition-all">
+                        Start Continuous Sensor Simulation
+                    </button>
+                </div>
+
+                <!-- SOS Log -->
+                <div class="bg-slate-900 rounded-3xl p-8">
+                    <h3 class="font-semibold mb-4 flex items-center gap-2">
+                        <span class="text-red-400">📡</span> SOS Transmission Log
+                    </h3>
+                    <div id="sos-log" class="font-mono text-sm space-y-3 max-h-80 overflow-auto text-slate-400"></div>
+                </div>
+
+                <!-- Emergency Contacts -->
+                <div class="bg-slate-900 rounded-3xl p-8">
+                    <h3 class="font-semibold mb-4">Emergency Contacts (Simulated)</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between bg-slate-800 px-5 py-4 rounded-2xl">
+                            <div>
+                                <div class="font-medium">Mom</div>
+                                <div class="text-xs text-slate-400">+91 98765 43210</div>
+                            </div>
+                            <div id="mom-status" class="text-xs px-4 py-1 bg-slate-700 rounded-3xl">Waiting</div>
+                        </div>
+                        <div class="flex items-center justify-between bg-slate-800 px-5 py-4 rounded-2xl">
+                            <div>
+                                <div class="font-medium">Emergency Services</div>
+                                <div class="text-xs text-slate-400">112 / 108 (India)</div>
+                            </div>
+                            <div id="police-status" class="text-xs px-4 py-1 bg-slate-700 rounded-3xl">Waiting</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let risk = 15;
+        let countdownTimer = null;
+        let monitoringInterval = null;
+        
+        const logContainer = document.getElementById('sos-log');
+        
+        function addLog(message, type = 'info') {
+            const time = new Date().toLocaleTimeString('en-IN', { hour12: false });
+            const color = type === 'danger' ? 'text-red-400' : type === 'success' ? 'text-emerald-400' : 'text-slate-400';
+            
+            logContainer.innerHTML += `
+                <div class="flex gap-3">
+                    <span class="text-xs text-slate-500 w-20 shrink-0">[${time}]</span>
+                    <span class="${color}">${message}</span>
+                </div>`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function updateSensorValues() {
+            const accel = (9.8 + (Math.random() * 4 - 2)).toFixed(2);
+            const gyro = (Math.random() * 3).toFixed(2);
+            
+            document.getElementById('accel-value').textContent = accel;
+            document.getElementById('gyro-value').textContent = gyro;
+            
+            // Simulate risk increase during "danger"
+            if (Math.random() > 0.7) risk = Math.min(98, risk + 8);
+            else risk = Math.max(10, risk - 3);
+            
+            document.getElementById('risk-score').textContent = Math.floor(risk);
+            document.getElementById('risk-score').className = 
+                risk > 70 ? 'text-4xl font-mono font-bold text-red-500' : 
+                risk > 40 ? 'text-4xl font-mono font-bold text-orange-400' : 
+                'text-4xl font-mono font-bold text-emerald-400';
+        }
+        
+        function startContinuousMonitoring() {
+            if (monitoringInterval) clearInterval(monitoringInterval);
+            
+            addLog("Continuous monitoring started (on-device simulation)", "success");
+            
+            monitoringInterval = setInterval(() => {
+                updateSensorValues();
+                
+                if (risk > 75 && document.getElementById('alert-screen').classList.contains('hidden')) {
+                    triggerEmergency("High Impact Detected");
+                }
+            }, 600);
+        }
+        
+        function triggerEmergency(reason) {
+            document.getElementById('normal-screen').classList.add('hidden');
+            document.getElementById('alert-screen').classList.remove('hidden');
+            
+            document.getElementById('alert-type').textContent = reason;
+            
+            let timeLeft = 10;
+            const countdownEl = document.getElementById('countdown');
+            
+            if (countdownTimer) clearInterval(countdownTimer);
+            
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                countdownEl.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    sendSOSNow(true);
+                }
+            }, 900);
+            
+            addLog(`🚨 EMERGENCY TRIGGERED: ${reason}`, "danger");
+        }
+        
+        function cancelAlert() {
+            if (countdownTimer) clearInterval(countdownTimer);
+            document.getElementById('alert-screen').classList.add('hidden');
+            document.getElementById('normal-screen').classList.remove('hidden');
+            risk = 25;
+            addLog("✅ Alert cancelled by user — monitoring resumed", "success");
+        }
+        
+        function sendSOSNow(auto = false) {
+            if (countdownTimer) clearInterval(countdownTimer);
+            
+            document.getElementById('alert-screen').classList.add('hidden');
+            document.getElementById('normal-screen').classList.remove('hidden');
+            
+            addLog("📍 Location shared: Chennai, Tamil Nadu", "danger");
+            addLog("📲 SMS sent to Mom (+91 98765 43210)", "danger");
+            addLog("📞 Voice call initiated to Emergency Services (112)", "danger");
+            addLog("🔔 Push notification sent to all contacts", "danger");
+            
+            // Simulate contacts receiving alert
+            setTimeout(() => {
+                document.getElementById('mom-status').innerHTML = 
+                    `<span class="bg-emerald-400 text-emerald-900 px-3 py-1 rounded-3xl">Alert Received</span>`;
+            }, 800);
+            
+            setTimeout(() => {
+                document.getElementById('police-status').innerHTML = 
+                    `<span class="bg-emerald-400 text-emerald-900 px-3 py-1 rounded-3xl">Dispatched</span>`;
+            }, 1800);
+            
+            addLog("✅ SOS successfully sent! (Simulated real Twilio + Firebase flow)", "success");
+            
+            // Reset risk
+            risk = 15;
+        }
+        
+        // Simulate a fall immediately
+        function simulateFall() {
+            risk = 85;
+            triggerEmergency("Sudden Fall Detected (Accelerometer Spike)");
+        }
+        
+        // Keyboard shortcut: Press "F" for Fall, "C" for Crash
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'f') simulateFall();
+            if (e.key.toLowerCase() === 'c') triggerEmergency("Vehicle Crash Detected");
+        });
+        
+        // Auto start monitoring when page loads
+        window.onload = () => {
+            addLog("SafeSense prototype initialized — On-device AI ready", "success");
+            startContinuousMonitoring();
+        };
+    </script>
+</body>
+</html>
